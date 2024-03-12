@@ -1,7 +1,8 @@
-#define S30 D15  // SWITCH // VOLUME ON-OFF
-#define S31 A1  // KNOB // PITCH
+#define S07 D6   // SWITCH // VOLUME ON-OFF
+#define S31 A1   // KNOB // PITCH
 #define S32 A2   // KNOB // OSCILLATOR FREQUENCY
 #define S33 A3   // KNOB // TIMBRE
+#define S36 A0   // Volume with fader 
 
 ///////////////////////////////////////////////////////////////
 ///////////////////// LIBRARIES & HARDWARE ////////////////////
@@ -16,18 +17,22 @@ const float kVoxVolumeKof = 3.0 / kVoxCount;
 Vox voxs[kVoxCount];
 
 Filter flt;
+//GC: Oscillator lfo;
 
-bool gate = false;
-
+bool _isEnabled = false;
+float _volume = 0;
 ///////////////////////////////////////////////////////////////
 ///////////////////// AUDIO CALLBACK (PATCH) //////////////////
 void AudioCallback(float **in, float **out, size_t size) {
 
   for (size_t i = 0; i < size; i++) {
     float output = 0;
-    if (gate) {
-      for (auto& vox: voxs) output += vox.Process(); 
+    if (_isEnabled) {
+      for (auto& vox: voxs) 
+        output += vox.Process(); 
       output = flt.Process(output) * kVoxVolumeKof;
+     // output = (flt.Process(output) * kVoxVolumeKof) / _volume;
+
     }
     out[0][i] = out[1][i] = output;
   }
@@ -46,14 +51,15 @@ void setup() {
   for (auto& vox: voxs) {
     vox.Init(sampleRate, voxFreq);
     voxFreq *= 1.5;
-    if (voxFreq > 1500) voxFreq *= 0.5;
+    if (voxFreq > 1500) 
+      voxFreq *= 0.5;
   }
 
   // FILTER SETUP
   flt.Init(sampleRate);
 
-  // GATE SWITCH SETUP
-  pinMode(S30, INPUT_PULLUP);
+  // ON/OFF SWITCH SETUP
+  pinMode(S07, INPUT_PULLUP);
 
   // BEGIN CALLBACK
   DAISY.begin(AudioCallback);
@@ -65,6 +71,8 @@ void setup() {
 void loop() {
   for (auto& vox: voxs) { vox.Read(S31, S32); }
   flt.SetTimbre(analogRead(S33) / 1023.0);
-  gate = digitalRead(S30);
+  _isEnabled = digitalRead(S07);
+  // _volume = fmap(analogRead(S36)/ 1023.f, 0, 1023.f);
+ // _oscFreq = fmap(analogRead(oscFreqPin) / 1023.f, oscFreqMin, oscFreqMax);
   delay(4);
 }

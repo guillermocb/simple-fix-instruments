@@ -18,9 +18,9 @@ static SimpleBD bd;
 static SimpleSD sd;
 static HiHat<> hh;
 
-static const int kRunPin = D(S30);
+static const int kRunPin = D(S07);
 static const int kSwitchPin = D(S10);
-static const int kSpeedPin = A(S31);
+static const int kSpeedPin = A(S37);
 static const int kPatternPin = A(S32);
 static const int kShiftPin = A(S33);
 static MultiKnob<2> speed_swing_knob({ 512, 0 }); //Tempo 140, Swing 0

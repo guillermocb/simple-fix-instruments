@@ -4,6 +4,13 @@
 #include "DaisyDuino.h"
 
 class Vox {
+
+private:
+  Oscillator _osc;
+  Oscillator _lfo;
+  float _oscFreq;
+  float _oscHighestFreq;
+
 public:
 
 static constexpr float kOscLowestFreq = 36;
@@ -34,11 +41,6 @@ float Process() {
     return _osc.Process();
 }
 
-private:
-  Oscillator _osc;
-  Oscillator _lfo;
-  float _oscFreq;
-  float _oscHighestFreq;
 };
 
 #endif
